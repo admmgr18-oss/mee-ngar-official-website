@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mee Ngar Restaurant | Official Website</title>
-  <meta name="description" content="Official corporate website and employee portal of Mee Ngar Restaurant Telipok.">
+  <meta name="description" content="Visit Mee Ngar Restaurant Telipok in Taman Putera Perdana, Telipok, Sabah.">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -236,6 +236,126 @@
     .employee-status-select { min-width:110px; padding:8px; }
     @media (max-width:700px) { .admin-form-grid { grid-template-columns:1fr; } .admin-form-card,.employee-table-card { padding:18px; } .admin-toolbar { align-items:flex-start; } }
 
+
+    /* Updated corporate homepage */
+    .hero {
+      padding: 72px 8%;
+      min-height: auto;
+      background:
+        radial-gradient(circle at 80% 15%, rgba(197,164,109,.18), transparent 30%),
+        linear-gradient(120deg, #14243a, #29415d);
+    }
+    .hero-grid {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
+      align-items: center;
+      gap: 55px;
+    }
+    .hero-content h1 { max-width: 650px; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+    .hero-actions .button { margin-top:8px; }
+    .button-outline {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,.45);
+    }
+    .hero-photo-wrap {
+      position:relative;
+      min-height:350px;
+      height: min(43vw, 490px);
+      border-radius:16px;
+      overflow:hidden;
+      background:linear-gradient(135deg,#314a66,#0e1c2d);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 22px 55px rgba(0,0,0,.22);
+    }
+    .hero-photo-wrap img {
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      position:absolute;
+      inset:0;
+    }
+    .photo-caption {
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      padding:22px 20px 18px;
+      color:white;
+      font-weight:bold;
+      background:linear-gradient(transparent,rgba(0,0,0,.72));
+      z-index:2;
+    }
+    .photo-fallback {
+      position:absolute;
+      inset:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      padding:28px;
+      text-align:center;
+      color:#e8edf5;
+      opacity:0;
+    }
+    .hero-photo-wrap.photo-missing .photo-fallback { opacity:1; }
+    .photo-fallback span { max-width:300px; line-height:1.6; font-size:13px; color:#c7d2e0; }
+    .photo-fallback code { color:#fff; }
+    .offer-section { background:#f7f5f0; }
+    .feature-card { position:relative; overflow:hidden; }
+    .feature-number {
+      color:var(--gold);
+      font-size:12px;
+      font-weight:bold;
+      letter-spacing:2px;
+      margin-bottom:18px;
+    }
+    .location-section { background:white; }
+    .location-layout {
+      max-width:1320px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+      gap:45px;
+      align-items:stretch;
+    }
+    .contact-detail { margin-top:22px; }
+    .contact-label {
+      display:block;
+      color:var(--gold);
+      font-size:11px;
+      font-weight:bold;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .contact-detail p { line-height:1.7; margin:0; color:var(--text); }
+    .contact-detail a { color:var(--navy); text-decoration:none; }
+    .contact-detail a:hover { text-decoration:underline; }
+    .map-frame {
+      min-height:420px;
+      overflow:hidden;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:#e8edf2;
+    }
+    .map-frame iframe { width:100%; height:100%; min-height:420px; border:0; display:block; }
+    @media (max-width:900px) {
+      .hero-grid { grid-template-columns:1fr; gap:32px; }
+      .hero-photo-wrap { height: min(65vw,430px); min-height:260px; }
+      .location-layout { grid-template-columns:1fr; gap:30px; }
+    }
+    @media (max-width:700px) {
+      .hero { padding:55px 6%; }
+      .hero-photo-wrap { height:300px; }
+      .map-frame, .map-frame iframe { min-height:330px; }
+    }
+
     footer {
       background: var(--navy);
       color: #d6deea;
@@ -263,22 +383,37 @@
   <nav>
     <a href="#home">Home</a>
     <a href="#about">About Us</a>
+    <a href="#location">Location</a>
     <a href="#employee">Employee Portal</a>
   </nav>
 </header>
 
 <main>
-  <div class="hero" id="home">
-    <div class="hero-content">
-      <div class="eyebrow">Official Corporate Website</div>
-      <h1>Welcome to Mee Ngar Restaurant</h1>
-      <p>
-        Bringing our people, operations and management together
-        through a central digital platform.
-      </p>
-      <a class="button" href="#employee">Employee Portal</a>
+  <section class="hero" id="home">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="eyebrow">Mee Ngar Restaurant Telipok</div>
+        <h1>Good Food.<br>Warm Welcome.</h1>
+        <p>
+          Welcome to Mee Ngar Restaurant Telipok — a local restaurant
+          serving our community with a variety of food and bakery favourites.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#location">Find Our Restaurant</a>
+          <a class="button button-outline" href="#employee">Employee Portal</a>
+        </div>
+      </div>
+      <div class="hero-photo-wrap">
+        <img id="shopFrontImage" src="shop-front.jpg"
+             alt="Shopfront of Mee Ngar Restaurant Telipok">
+        <div class="photo-caption">Mee Ngar Restaurant Telipok</div>
+        <div class="photo-fallback">
+          <strong>Your shop photo will appear here</strong>
+          <span>Upload your photo to this repository as <code>shop-front.jpg</code>.</span>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
   <section id="about">
     <div class="eyebrow">Who We Are</div>
@@ -301,6 +436,69 @@
       <div class="card">
         <h3>Our Management</h3>
         <p>Building a more organised and connected management platform.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="offer-section" id="highlights">
+    <div class="eyebrow">A Taste of Mee Ngar</div>
+    <h2 class="section-title">Restaurant & Bakery Favourites</h2>
+    <p class="section-description">
+      Enjoy a variety of local favourites, freshly prepared meals and bakery
+      selections at Mee Ngar Restaurant Telipok.
+    </p>
+    <div class="cards">
+      <div class="card feature-card">
+        <div class="feature-number">01</div>
+        <h3>Local Meals</h3>
+        <p>Comforting dishes for breakfast and lunch.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-number">02</div>
+        <h3>Buns & Bakery</h3>
+        <p>A selection of buns, pastries and baked treats.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-number">03</div>
+        <h3>Tarts & Treats</h3>
+        <p>Enjoy our popular tart and sweet snack selections.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="location-section" id="location">
+    <div class="location-layout">
+      <div class="location-copy">
+        <div class="eyebrow">Visit Us</div>
+        <h2 class="section-title">Find Mee Ngar Telipok</h2>
+        <p class="section-description">
+          Come and visit our restaurant in Taman Putera Perdana, Telipok.
+        </p>
+        <div class="contact-detail">
+          <span class="contact-label">Address</span>
+          <p>Ground Floor, Lot 5 (DBKK No. 1-5), Lorong Putera Perdana,
+          Taman Putera Perdana, Phase 2C, Telipok, 88450 Kota Kinabalu,
+          Sabah, Malaysia.</p>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-label">Phone</span>
+          <p><a href="tel:+60128021354">+60 12-802 1354</a></p>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-label">Email</span>
+          <p><a href="mailto:meengartelipok@gmail.com">meengartelipok@gmail.com</a></p>
+        </div>
+        <a class="button" href="https://www.google.com/maps/search/?api=1&query=Restaurant%20Mee%20Ngar%20Telipok%2C%20Ground%20Floor%20Lot%205%20Lorong%20Putera%20Perdana%20Taman%20Putera%20Perdana%20Telipok%2088450%20Kota%20Kinabalu%20Sabah%20Malaysia"
+           target="_blank" rel="noopener noreferrer">Get Directions</a>
+      </div>
+      <div class="map-frame">
+        <iframe
+          title="Google Maps location of Mee Ngar Restaurant Telipok"
+          src="https://www.google.com/maps?q=Restaurant%20Mee%20Ngar%20Telipok%2C%20Ground%20Floor%20Lot%205%20Lorong%20Putera%20Perdana%20Taman%20Putera%20Perdana%20Telipok%2088450%20Kota%20Kinabalu%20Sabah%20Malaysia&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen>
+        </iframe>
       </div>
     </div>
   </section>
@@ -384,16 +582,16 @@
             </div>
             <div class="admin-form-actions">
               <button class="button" type="submit" id="saveEmployeeButton">Send Invitation</button>
-              <button class="small-button" type="button" id="cancelEmployeeEditButton" style="display:none;">Cancel Edit</button>
+
             </div>
-            <p class="admin-note">New employees receive an invitation email. When editing, the email address is read-only.</p>
+            <p class="admin-note">New employees receive an invitation email. Employee listing uses the current employee management API.</p>
           </form>
         </div>
         <div class="card employee-table-card">
           <h3>Employee Records</h3>
           <div class="table-scroll">
             <table class="employee-table">
-              <thead><tr><th>Name / Code</th><th>Department / Job Title</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Name / Code</th><th>Department / Job Title</th><th>Role</th><th>Status</th><th>Date Added</th></tr></thead>
               <tbody id="employeeTableBody"><tr><td colspan="5">Employee list will appear here.</td></tr></tbody>
             </table>
           </div>
@@ -561,6 +759,18 @@
   });
 
 
+
+  const shopFrontImage = document.getElementById("shopFrontImage");
+  if (shopFrontImage) {
+    shopFrontImage.addEventListener("error", () => {
+      shopFrontImage.style.display = "none";
+      shopFrontImage.parentElement.classList.add("photo-missing");
+    });
+    shopFrontImage.addEventListener("load", () => {
+      shopFrontImage.parentElement.classList.remove("photo-missing");
+    });
+  }
+
   // Super Admin employee management
   const employeeAdminMessage = document.getElementById("employeeAdminMessage");
   const employeeForm = document.getElementById("employeeForm");
@@ -596,26 +806,10 @@
   function resetEmployeeForm() {
     employeeForm.reset();
     document.getElementById("employeeId").value = "";
-    document.getElementById("employeeEmail").readOnly = false;
     document.getElementById("employeeFormTitle").textContent = "Add New Employee";
     document.getElementById("saveEmployeeButton").textContent = "Send Invitation";
-    document.getElementById("cancelEmployeeEditButton").style.display = "none";
   }
 
-  function beginEmployeeEdit(employee) {
-    document.getElementById("employeeId").value = employee.id;
-    document.getElementById("employeeFullName").value = employee.full_name || "";
-    document.getElementById("employeeEmail").value = employee.email || "";
-    document.getElementById("employeeEmail").readOnly = true;
-    document.getElementById("employeeCode").value = employee.employee_code || "";
-    document.getElementById("employeeDepartment").value = employee.department || "";
-    document.getElementById("employeeJobTitle").value = employee.job_title || "";
-    document.getElementById("employeeRole").value = employee.role || "service_crew";
-    document.getElementById("employeeFormTitle").textContent = "Edit Employee";
-    document.getElementById("saveEmployeeButton").textContent = "Save Changes";
-    document.getElementById("cancelEmployeeEditButton").style.display = "inline-block";
-    employeeForm.scrollIntoView({ behavior:"smooth", block:"start" });
-  }
 
   function renderEmployeeTable() {
     employeeTableBody.replaceChildren();
@@ -654,49 +848,14 @@
       roleCell.textContent = roleLabel(employee.role);
 
       const statusCell = document.createElement("td");
-      const statusSelect = document.createElement("select");
-      statusSelect.className = "employee-status-select";
-      ["active", "inactive", "suspended"].forEach(status => {
-        const option = document.createElement("option");
-        option.value = status;
-        option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-        statusSelect.appendChild(option);
-      });
-      statusSelect.value = employee.status || "inactive";
-      statusSelect.disabled = employee.role === "super_admin";
-      statusCell.appendChild(statusSelect);
+      statusCell.textContent = employee.status || "—";
 
-      const actionCell = document.createElement("td");
-      const actions = document.createElement("div");
-      actions.className = "employee-actions";
+      const dateCell = document.createElement("td");
+      dateCell.textContent = employee.created_at
+        ? new Date(employee.created_at).toLocaleDateString()
+        : "—";
 
-      const editButton = document.createElement("button");
-      editButton.type = "button";
-      editButton.textContent = "Edit";
-      editButton.disabled = employee.role === "super_admin";
-      editButton.addEventListener("click", () => beginEmployeeEdit(employee));
-
-      const statusButton = document.createElement("button");
-      statusButton.type = "button";
-      statusButton.textContent = "Save Status";
-      statusButton.disabled = employee.role === "super_admin";
-      statusButton.addEventListener("click", async () => {
-        statusButton.disabled = true;
-        try {
-          showEmployeeAdminMessage("Updating employee status...");
-          await callEmployeeFunction({ action:"set_employee_status", employee_id:employee.id, status:statusSelect.value });
-          showEmployeeAdminMessage("Employee status updated.", "success");
-          await loadEmployees();
-        } catch (error) {
-          showEmployeeAdminMessage(error.message, "error");
-        } finally {
-          statusButton.disabled = false;
-        }
-      });
-
-      actions.append(editButton, statusButton);
-      actionCell.appendChild(actions);
-      row.append(nameCell, deptCell, roleCell, statusCell, actionCell);
+      row.append(nameCell, deptCell, roleCell, statusCell, dateCell);
       employeeTableBody.appendChild(row);
     });
   }
@@ -724,7 +883,6 @@
     event.preventDefault();
     const saveButton = document.getElementById("saveEmployeeButton");
     saveButton.disabled = true;
-    const employeeId = document.getElementById("employeeId").value.trim();
     const employeeData = {
       full_name:document.getElementById("employeeFullName").value.trim(),
       email:document.getElementById("employeeEmail").value.trim(),
@@ -734,15 +892,9 @@
       role:document.getElementById("employeeRole").value
     };
     try {
-      if (employeeId) {
-        showEmployeeAdminMessage("Saving employee changes...");
-        await callEmployeeFunction({ action:"update_employee", employee_id:employeeId, ...employeeData });
-        showEmployeeAdminMessage("Employee details updated.", "success");
-      } else {
-        showEmployeeAdminMessage("Sending employee invitation...");
-        await callEmployeeFunction({ action:"create_employee", ...employeeData });
-        showEmployeeAdminMessage("Employee invitation sent.", "success");
-      }
+      showEmployeeAdminMessage("Sending employee invitation...");
+      await callEmployeeFunction({ action:"create_employee", ...employeeData });
+      showEmployeeAdminMessage("Employee invitation sent.", "success");
       resetEmployeeForm();
       await loadEmployees();
     } catch (error) {
@@ -752,7 +904,6 @@
     }
   });
 
-  document.getElementById("cancelEmployeeEditButton").addEventListener("click", resetEmployeeForm);
   document.getElementById("refreshEmployeesButton").addEventListener("click", loadEmployees);
 
 
