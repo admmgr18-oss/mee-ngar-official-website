@@ -216,6 +216,26 @@
       cursor: pointer;
     }
 
+
+    .admin-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin:20px 0; }
+    .admin-form-card, .employee-table-card { margin-top:20px; }
+    .admin-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 18px; }
+    .admin-form-grid select, .employee-status-select { width:100%; padding:12px; border:1px solid #d6dce4; border-radius:5px; font-size:14px; background:white; }
+    .admin-form-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px; }
+    .admin-form-actions .button { margin-top:0; width:auto; }
+    .admin-note { font-size:12px; line-height:1.6; color:var(--muted); margin-bottom:0; }
+    .table-scroll { overflow-x:auto; width:100%; }
+    .employee-table { width:100%; border-collapse:collapse; min-width:760px; font-size:13px; }
+    .employee-table th, .employee-table td { padding:13px 11px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top; }
+    .employee-table th { color:var(--navy); background:#f7f5f0; white-space:nowrap; }
+    .employee-table td strong { display:block; color:var(--navy); margin-bottom:4px; }
+    .employee-table .employee-subtext { color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
+    .employee-actions { display:flex; flex-wrap:wrap; gap:7px; min-width:170px; }
+    .employee-actions button { padding:7px 10px; border:1px solid var(--border); border-radius:4px; background:white; cursor:pointer; }
+    .employee-actions button:hover, .small-button:hover { border-color:var(--gold); }
+    .employee-status-select { min-width:110px; padding:8px; }
+    @media (max-width:700px) { .admin-form-grid { grid-template-columns:1fr; } .admin-form-card,.employee-table-card { padding:18px; } .admin-toolbar { align-items:flex-start; } }
+
     footer {
       background: var(--navy);
       color: #d6deea;
@@ -335,10 +355,48 @@
       <div class="cards" id="applicationList"></div>
 
       <div id="adminArea" style="display:none; margin-top:35px;">
-        <h3 style="color:var(--navy);">Super Admin</h3>
-        <div class="card">
-          <p>You are signed in with Super Admin access.</p>
-          <p>Employee account management will be added in the next development stage.</p>
+        <h3 style="color:var(--navy);">Super Admin — Employee Management</h3>
+        <p class="section-description">Manage employee profiles and send account invitations. Only Super Admin can use this section.</p>
+        <div class="admin-toolbar">
+          <button class="small-button" type="button" id="refreshEmployeesButton">Refresh Employee List</button>
+          <span id="employeeAdminMessage" class="message" role="status"></span>
+        </div>
+        <div class="card admin-form-card">
+          <h3 id="employeeFormTitle">Add New Employee</h3>
+          <form id="employeeForm">
+            <input type="hidden" id="employeeId">
+            <div class="admin-form-grid">
+              <div><label for="employeeFullName">Full Name *</label><input id="employeeFullName" type="text" required maxlength="120"></div>
+              <div><label for="employeeEmail">Email Address *</label><input id="employeeEmail" type="email" required maxlength="254"></div>
+              <div><label for="employeeCode">Employee Code *</label><input id="employeeCode" type="text" required maxlength="40"></div>
+              <div><label for="employeeDepartment">Department</label><input id="employeeDepartment" type="text" maxlength="100"></div>
+              <div><label for="employeeJobTitle">Job Title</label><input id="employeeJobTitle" type="text" maxlength="100"></div>
+              <div>
+                <label for="employeeRole">Role *</label>
+                <select id="employeeRole" required>
+                  <option value="manager">Manager</option>
+                  <option value="supervisor">Supervisor</option>
+                  <option value="admin_assistant">Admin Assistant</option>
+                  <option value="bakery_staff">Bakery Staff</option>
+                  <option value="service_crew">Service Crew</option>
+                </select>
+              </div>
+            </div>
+            <div class="admin-form-actions">
+              <button class="button" type="submit" id="saveEmployeeButton">Send Invitation</button>
+              <button class="small-button" type="button" id="cancelEmployeeEditButton" style="display:none;">Cancel Edit</button>
+            </div>
+            <p class="admin-note">New employees receive an invitation email. When editing, the email address is read-only.</p>
+          </form>
+        </div>
+        <div class="card employee-table-card">
+          <h3>Employee Records</h3>
+          <div class="table-scroll">
+            <table class="employee-table">
+              <thead><tr><th>Name / Code</th><th>Department / Job Title</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="employeeTableBody"><tr><td colspan="5">Employee list will appear here.</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -434,6 +492,10 @@
 
     document.getElementById("adminArea").style.display =
       profile.role === "super_admin" ? "block" : "none";
+
+    if (profile.role === "super_admin") {
+      loadEmployees();
+    }
   }
 
   async function loadEmployee() {
@@ -497,6 +559,202 @@
     document.getElementById("password").value = "";
     showMessage("You have signed out.", "success");
   });
+
+
+  // Super Admin employee management
+  const employeeAdminMessage = document.getElementById("employeeAdminMessage");
+  const employeeForm = document.getElementById("employeeForm");
+  const employeeTableBody = document.getElementById("employeeTableBody");
+  let employeeRecords = [];
+
+  function showEmployeeAdminMessage(message, type = "") {
+    employeeAdminMessage.textContent = message;
+    employeeAdminMessage.className = "message " + type;
+  }
+
+  function roleLabel(role) {
+    const labels = { manager:"Manager", supervisor:"Supervisor", admin_assistant:"Admin Assistant", bakery_staff:"Bakery Staff", service_crew:"Service Crew", super_admin:"Super Admin" };
+    return labels[role] || role || "—";
+  }
+
+  async function callEmployeeFunction(payload) {
+    const { data, error } = await supabaseClient.functions.invoke("manage-employees", { body: payload });
+    if (error) {
+      let message = error.message || "Request failed.";
+      try {
+        if (error.context && typeof error.context.json === "function") {
+          const response = await error.context.json();
+          if (response && response.error) message = response.error;
+        }
+      } catch (_) {}
+      throw new Error(message);
+    }
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  }
+
+  function resetEmployeeForm() {
+    employeeForm.reset();
+    document.getElementById("employeeId").value = "";
+    document.getElementById("employeeEmail").readOnly = false;
+    document.getElementById("employeeFormTitle").textContent = "Add New Employee";
+    document.getElementById("saveEmployeeButton").textContent = "Send Invitation";
+    document.getElementById("cancelEmployeeEditButton").style.display = "none";
+  }
+
+  function beginEmployeeEdit(employee) {
+    document.getElementById("employeeId").value = employee.id;
+    document.getElementById("employeeFullName").value = employee.full_name || "";
+    document.getElementById("employeeEmail").value = employee.email || "";
+    document.getElementById("employeeEmail").readOnly = true;
+    document.getElementById("employeeCode").value = employee.employee_code || "";
+    document.getElementById("employeeDepartment").value = employee.department || "";
+    document.getElementById("employeeJobTitle").value = employee.job_title || "";
+    document.getElementById("employeeRole").value = employee.role || "service_crew";
+    document.getElementById("employeeFormTitle").textContent = "Edit Employee";
+    document.getElementById("saveEmployeeButton").textContent = "Save Changes";
+    document.getElementById("cancelEmployeeEditButton").style.display = "inline-block";
+    employeeForm.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  function renderEmployeeTable() {
+    employeeTableBody.replaceChildren();
+    if (!employeeRecords.length) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 5;
+      cell.textContent = "No employee records found.";
+      row.appendChild(cell);
+      employeeTableBody.appendChild(row);
+      return;
+    }
+
+    employeeRecords.forEach(employee => {
+      const row = document.createElement("tr");
+      const nameCell = document.createElement("td");
+      const name = document.createElement("strong");
+      name.textContent = employee.full_name || "Unnamed Employee";
+      const code = document.createElement("div");
+      code.className = "employee-subtext";
+      code.textContent = employee.employee_code || "—";
+      const email = document.createElement("div");
+      email.className = "employee-subtext";
+      email.textContent = employee.email || "—";
+      nameCell.append(name, code, email);
+
+      const deptCell = document.createElement("td");
+      const department = document.createElement("div");
+      department.textContent = employee.department || "—";
+      const job = document.createElement("div");
+      job.className = "employee-subtext";
+      job.textContent = employee.job_title || "—";
+      deptCell.append(department, job);
+
+      const roleCell = document.createElement("td");
+      roleCell.textContent = roleLabel(employee.role);
+
+      const statusCell = document.createElement("td");
+      const statusSelect = document.createElement("select");
+      statusSelect.className = "employee-status-select";
+      ["active", "inactive", "suspended"].forEach(status => {
+        const option = document.createElement("option");
+        option.value = status;
+        option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        statusSelect.appendChild(option);
+      });
+      statusSelect.value = employee.status || "inactive";
+      statusSelect.disabled = employee.role === "super_admin";
+      statusCell.appendChild(statusSelect);
+
+      const actionCell = document.createElement("td");
+      const actions = document.createElement("div");
+      actions.className = "employee-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.textContent = "Edit";
+      editButton.disabled = employee.role === "super_admin";
+      editButton.addEventListener("click", () => beginEmployeeEdit(employee));
+
+      const statusButton = document.createElement("button");
+      statusButton.type = "button";
+      statusButton.textContent = "Save Status";
+      statusButton.disabled = employee.role === "super_admin";
+      statusButton.addEventListener("click", async () => {
+        statusButton.disabled = true;
+        try {
+          showEmployeeAdminMessage("Updating employee status...");
+          await callEmployeeFunction({ action:"set_employee_status", employee_id:employee.id, status:statusSelect.value });
+          showEmployeeAdminMessage("Employee status updated.", "success");
+          await loadEmployees();
+        } catch (error) {
+          showEmployeeAdminMessage(error.message, "error");
+        } finally {
+          statusButton.disabled = false;
+        }
+      });
+
+      actions.append(editButton, statusButton);
+      actionCell.appendChild(actions);
+      row.append(nameCell, deptCell, roleCell, statusCell, actionCell);
+      employeeTableBody.appendChild(row);
+    });
+  }
+
+  async function loadEmployees() {
+    showEmployeeAdminMessage("Loading employee records...");
+    try {
+      const result = await callEmployeeFunction({ action:"list_employees" });
+      employeeRecords = Array.isArray(result.employees) ? result.employees : [];
+      renderEmployeeTable();
+      showEmployeeAdminMessage("Loaded " + employeeRecords.length + " employee record(s).", "success");
+    } catch (error) {
+      showEmployeeAdminMessage(error.message || "Unable to load employees.", "error");
+      employeeTableBody.replaceChildren();
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 5;
+      cell.textContent = "Could not load employees. Check your login and the Edge Function.";
+      row.appendChild(cell);
+      employeeTableBody.appendChild(row);
+    }
+  }
+
+  employeeForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const saveButton = document.getElementById("saveEmployeeButton");
+    saveButton.disabled = true;
+    const employeeId = document.getElementById("employeeId").value.trim();
+    const employeeData = {
+      full_name:document.getElementById("employeeFullName").value.trim(),
+      email:document.getElementById("employeeEmail").value.trim(),
+      employee_code:document.getElementById("employeeCode").value.trim(),
+      department:document.getElementById("employeeDepartment").value.trim(),
+      job_title:document.getElementById("employeeJobTitle").value.trim(),
+      role:document.getElementById("employeeRole").value
+    };
+    try {
+      if (employeeId) {
+        showEmployeeAdminMessage("Saving employee changes...");
+        await callEmployeeFunction({ action:"update_employee", employee_id:employeeId, ...employeeData });
+        showEmployeeAdminMessage("Employee details updated.", "success");
+      } else {
+        showEmployeeAdminMessage("Sending employee invitation...");
+        await callEmployeeFunction({ action:"create_employee", ...employeeData });
+        showEmployeeAdminMessage("Employee invitation sent.", "success");
+      }
+      resetEmployeeForm();
+      await loadEmployees();
+    } catch (error) {
+      showEmployeeAdminMessage(error.message || "Employee operation failed.", "error");
+    } finally {
+      saveButton.disabled = false;
+    }
+  });
+
+  document.getElementById("cancelEmployeeEditButton").addEventListener("click", resetEmployeeForm);
+  document.getElementById("refreshEmployeesButton").addEventListener("click", loadEmployees);
+
 
   supabaseClient.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT") showLogin();
